@@ -1,0 +1,49 @@
+.bill-info-card {
+    background-color: #fff; /* White background */
+    border: 1px solid #ddd; /* Light gray border */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    padding: 16px; /* Inner spacing */
+    max-width: 500px; /* Optional width */
+    margin: 16px auto; /* Center the card */
+    font-family: Arial, sans-serif; /* Clean font */
+}
+
+.bill-title {
+    font-size: 1.2rem; /* Slightly smaller than h1 */
+    color: #555; /* Medium gray for subtitle */
+    margin-bottom: 8px;
+}
+
+.bill-number {
+    font-size: 1rem; /* Smaller than h2 */
+    color: #666; /* Lighter gray for headers */
+    margin-bottom: 8px;
+    text-transform: uppercase; /* Optional: Make text uppercase */
+    letter-spacing: 0.5px; /* Slight spacing for clarity */
+}
+
+p {
+    font-size: 0.9rem; /* Standard paragraph size */
+    line-height: 1.5; /* Better readability */
+    color: #444; /* Slightly lighter than h1 */
+    margin-bottom: 12px; /* Space below text */
+}
+
+.read-more {
+    display: inline-block; /* Makes it act like a button */
+    font-size: 0.9rem;
+    color: #007bff; /* Blue color for link */
+    text-decoration: none; /* Remove underline */
+    font-weight: bold; /* Emphasize link */
+    padding: 8px 12px; /* Button-like padding */
+    border: 1px solid #007bff; /* Border matching text color */
+    border-radius: 4px; /* Rounded corners */
+    transition: all 0.3s ease; /* Smooth hover effect */
+}
+
+.read-more:hover {
+    background-color: #007bff; /* Change background on hover */
+    color: #fff; /* White text on hover */
+    border-color: #0056b3; /* Darker border on hover */
+}
