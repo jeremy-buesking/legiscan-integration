@@ -11,12 +11,15 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-// Service class to handle LegiScan API calls
+import java.util.HashMap;
+
+// Service class to handle LegiScan API calls w/ business logic
 @Service
 public class LegiScanService {
     private final RestTemplate restTemplate;
     private final LegiScanConfig config;
     private static final Logger logger = LoggerFactory.getLogger(LegiScanService.class);
+    private final HashMap<String, JsonNode> billCache = new HashMap<>();
 
     @Autowired
     public LegiScanService(RestTemplate restTemplate, LegiScanConfig config) {
@@ -44,6 +47,9 @@ public class LegiScanService {
 
     public JsonNode getBill(String billId) {
         try {
+            if(billCache.containsKey(billId)) {
+                return billCache.get(billId);
+            }
             String url = UriComponentsBuilder
                     .fromHttpUrl(config.getBaseUrl())
                     .queryParam("key", config.getApiKey())
@@ -53,6 +59,7 @@ public class LegiScanService {
                     .toUriString();
 
             ResponseEntity<JsonNode> response = restTemplate.getForEntity(url, JsonNode.class);
+            billCache.put(billId, response.getBody());
             return response.getBody();
         } catch (RestClientException e) {
             logger.error("Error fetching bill data from LegiScan", e);
