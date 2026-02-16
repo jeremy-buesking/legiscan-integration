@@ -1,5 +1,6 @@
 package com.example.LegiTrack.controller;
 
+import com.example.LegiTrack.model.Bill;
 import com.example.LegiTrack.service.BillTextService;
 import com.example.LegiTrack.service.LegiScanService;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -28,8 +29,8 @@ public class LegiScanController {
     }
 
     @GetMapping("/bill/{billId}")
-    public ResponseEntity<JsonNode> getBill(@PathVariable String billId) {
-        JsonNode response = legiScanService.getBill(billId);
+    public ResponseEntity<Bill> getBill(@PathVariable Long billId) {
+        Bill response = legiScanService.getBill(billId);
         return ResponseEntity.ok(response);
     }
 

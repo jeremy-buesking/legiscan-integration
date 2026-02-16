@@ -1,7 +1,10 @@
 package com.example.LegiTrack.service;
 
 import com.example.LegiTrack.config.LegiScanConfig;
+import com.example.LegiTrack.model.Bill;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,12 +22,14 @@ public class LegiScanService {
     private final RestTemplate restTemplate;
     private final LegiScanConfig config;
     private static final Logger logger = LoggerFactory.getLogger(LegiScanService.class);
-    private final HashMap<String, JsonNode> billCache = new HashMap<>();
+    private final HashMap<Long, Bill> billCache = new HashMap<>();
+    private final ObjectMapper objectMapper;
 
     @Autowired
-    public LegiScanService(RestTemplate restTemplate, LegiScanConfig config) {
+    public LegiScanService(RestTemplate restTemplate, LegiScanConfig config, ObjectMapper objectMapper) {
         this.restTemplate = restTemplate;
         this.config = config;
+        this.objectMapper = objectMapper;
     }
 
     public JsonNode getMasterList(String state) {
@@ -45,7 +50,7 @@ public class LegiScanService {
         }
     }
 
-    public JsonNode getBill(String billId) {
+    public Bill getBill(Long billId) {
         try {
             if(billCache.containsKey(billId)) {
                 return billCache.get(billId);
@@ -59,11 +64,16 @@ public class LegiScanService {
                     .toUriString();
 
             ResponseEntity<JsonNode> response = restTemplate.getForEntity(url, JsonNode.class);
-            billCache.put(billId, response.getBody());
-            return response.getBody();
+            JsonNode body = response.getBody();
+            Bill billObj = objectMapper.treeToValue(body.get("bill"), Bill.class);
+            billCache.put(billId, billObj);
+
+            return billObj;
         } catch (RestClientException e) {
             logger.error("Error fetching bill data from LegiScan", e);
             throw new RuntimeException("Failed to fetch bill data", e);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to parse bill data", e);
         }
     }
 
