@@ -1,6 +1,7 @@
 package com.example.LegiTrack.service;
 
 import com.example.LegiTrack.config.LegiScanConfig;
+import com.example.LegiTrack.model.Bill;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -13,6 +14,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Base64;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -48,7 +50,7 @@ public class BillTextService {
             JsonNode response = restTemplate.getForObject(url, JsonNode.class);
 
             if (response == null || !response.has("text")) {
-                throw new RuntimeException("response is null");
+                throw new RuntimeException("Invalid response");
             }
 
             JsonNode textNode = response.get("text");
@@ -88,8 +90,7 @@ public class BillTextService {
     public String extractTextFromHtml(byte[] htmlBytes) throws IOException {
         log.debug("Extracting text from HTML ({} bytes)", htmlBytes.length);
 
-        // For now, just convert to string
-        // In the future, could use Jsoup to strip HTML tags properly
+        // For now, just convert to string. In the future, could use Jsoup to strip HTML tags properly
         String html = new String(htmlBytes);
 
         // Simple tag removal (not perfect, but works for basic HTML)
@@ -107,13 +108,13 @@ public class BillTextService {
      * @param textsArray JsonNode array of text versions
      * @return The doc_id of the most recent version
      */
-    public Long getMostRecentTextDocId(JsonNode textsArray) {
+    public Long getMostRecentTextDocId(List<Bill.BillText> textsArray) {
         if (textsArray == null || textsArray.size() == 0) {
             throw new RuntimeException("No text versions available for this bill");
         }
 
         // The most recent version is typically the last in the array
-        JsonNode lastVersion = textsArray.get(textsArray.size() - 1);
-        return lastVersion.get("doc_id").asLong();
+        Bill.BillText lastVersion = textsArray.get(textsArray.size() - 1);
+        return lastVersion.getDocId();
     }
 }

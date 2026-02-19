@@ -1,8 +1,13 @@
 package com.example.LegiTrack.service;
 
 import com.example.LegiTrack.config.LegiScanConfig;
+import com.example.LegiTrack.model.Bill;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,11 +17,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Base64;
+import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 /**
@@ -44,8 +53,8 @@ class BillTextServiceTest {
         objectMapper = new ObjectMapper();
 
         // Configure mock config to return test values
-        when(config.getBaseUrl()).thenReturn("https://api.legiscan.com");
-        when(config.getApiKey()).thenReturn("test-api-key");
+        lenient().when(config.getBaseUrl()).thenReturn("https://api.legiscan.com");
+        lenient().when(config.getApiKey()).thenReturn("test-api-key");
     }
 
     // ========== getBillText() Tests ==========
@@ -130,7 +139,7 @@ class BillTextServiceTest {
         // Act & Assert
         assertThatThrownBy(() -> billTextService.getBillText(docId))
                 .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("Invalid response");
+                .hasMessageContaining("Failed to fetch bill text for doc_id " + docId);
     }
 
     @Test
@@ -203,39 +212,41 @@ class BillTextServiceTest {
 
     @Test
     @DisplayName("Should return doc_id of last element in array")
-    void getMostRecentTextDocId_ReturnsLastDocId() throws Exception {
+    void getMostRecentTextDocId_ReturnsLastDocId() {
         // Arrange
-        String textsJson = """
-            [
-                {"doc_id": 100, "date": "2025-01-01"},
-                {"doc_id": 200, "date": "2025-02-01"},
-                {"doc_id": 300, "date": "2025-03-01"}
-            ]
-            """;
-        JsonNode textsArray = objectMapper.readTree(textsJson);
+        Bill.BillText text1 = new Bill.BillText();
+        text1.setDocId(100L);
+        text1.setType("Introduced");
+
+        Bill.BillText text2 = new Bill.BillText();
+        text2.setDocId(200L);
+        text2.setType("Amended");
+
+        Bill.BillText text3 = new Bill.BillText();
+        text3.setDocId(300L);
+        text3.setType("Enrolled");
 
         // Act
-        Long result = billTextService.getMostRecentTextDocId(textsArray);
+        List<Bill.BillText> texts = List.of(text1, text2, text3);
 
         // Assert
+        Long result = billTextService.getMostRecentTextDocId(texts);
         assertThat(result).isEqualTo(300L);
     }
 
     @Test
     @DisplayName("Should handle single element array")
-    void getMostRecentTextDocId_WithSingleElement_ReturnsDocId() throws Exception {
+    void getMostRecentTextDocId_WithSingleElement_ReturnsDocId() {
         // Arrange
-        String textsJson = """
-            [
-                {"doc_id": 100, "date": "2025-01-01"}
-            ]
-            """;
-        JsonNode textsArray = objectMapper.readTree(textsJson);
+        Bill.BillText text1 = new Bill.BillText();
+        text1.setDocId(100L);
+        text1.setType("Introduced");
 
         // Act
-        Long result = billTextService.getMostRecentTextDocId(textsArray);
+        List<Bill.BillText> texts = List.of(text1);
 
         // Assert
+        Long result = billTextService.getMostRecentTextDocId(texts);
         assertThat(result).isEqualTo(100L);
     }
 
@@ -250,12 +261,12 @@ class BillTextServiceTest {
 
     @Test
     @DisplayName("Should throw exception for empty array")
-    void getMostRecentTextDocId_WithEmptyArray_ThrowsException() throws Exception {
+    void getMostRecentTextDocId_WithEmptyArray_ThrowsException() {
         // Arrange
-        JsonNode emptyArray = objectMapper.readTree("[]");
+        List<Bill.BillText> emptyTexts = List.of();
 
         // Act & Assert
-        assertThatThrownBy(() -> billTextService.getMostRecentTextDocId(emptyArray))
+        assertThatThrownBy(() -> billTextService.getMostRecentTextDocId(emptyTexts))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("No text versions available");
     }
@@ -286,17 +297,24 @@ class BillTextServiceTest {
      * Note: This is a minimal PDF that PDFBox can parse
      */
     private byte[] createSimplePdf(String content) throws IOException {
-        // For real testing, you'd create an actual PDF with PDFBox
-        // For now, we'll create a minimal PDF structure
-        // In practice, you might use a test PDF file from resources
-        String pdfContent = "%PDF-1.4\n" +
-                "1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n" +
-                "2 0 obj<</Type/Pages/Count 1/Kids[3 0 R]>>endobj\n" +
-                "3 0 obj<</Type/Page/Parent 2 0 R/Contents 4 0 R>>endobj\n" +
-                "4 0 obj<</Length " + content.length() + ">>stream\n" +
-                content + "\nendstream\nendobj\n" +
-                "xref\n0 5\ntrailer<</Size 5/Root 1 0 R>>\n%%EOF";
+        // Use PDFBox to create an actual valid PDF
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+             PDDocument document = new PDDocument()) {
 
-        return pdfContent.getBytes();
+            PDPage page = new PDPage();
+            document.addPage(page);
+
+            try (PDPageContentStream contentStream =
+                         new PDPageContentStream(document, page)) {
+                contentStream.beginText();
+                contentStream.setFont(PDType1Font.HELVETICA, 12);
+                contentStream.newLineAtOffset(100, 700);
+                contentStream.showText(content);
+                contentStream.endText();
+            }
+
+            document.save(baos);
+            return baos.toByteArray();
+        }
     }
 }
