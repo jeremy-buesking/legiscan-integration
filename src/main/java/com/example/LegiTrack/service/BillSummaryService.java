@@ -15,14 +15,17 @@ public class BillSummaryService {
     private BillSummaryRepository billSummaryRepository;
     private LegiScanService legiScanService;
     private BillTextService billTextService;
+    private AnthropicService anthropicService;
 
     @Autowired
     public BillSummaryService(BillSummaryRepository billSummaryRepository,
                               LegiScanService legiScanService,
-                              BillTextService billTextService) {
+                              BillTextService billTextService,
+                              AnthropicService anthropicService) {
         this.billSummaryRepository = billSummaryRepository;
         this.legiScanService = legiScanService;
         this.billTextService = billTextService;
+        this.anthropicService = anthropicService;
     }
 
     public String getSummary(Long billId)  {
@@ -39,8 +42,8 @@ public class BillSummaryService {
             Bill billToSummarize = legiScanService.getBill(billId);
             Long mostRecentTextDocId = billTextService.getMostRecentTextDocId(billToSummarize.getTexts());
             String billText = billTextService.getBillText(mostRecentTextDocId);
-            // Step 4: Generate summary (TODO - implement Claude API)
-            String summaryText = generateSummary(billText); // Stub for now
+
+            String summaryText = anthropicService.summarizeBill(billText);
 
             BillSummaryEntity billSummaryEntity = new BillSummaryEntity(
                 billId,
@@ -58,12 +61,12 @@ public class BillSummaryService {
         }
     }
 
-    /**
+/*    *//**
      * Placeholder for Claude API integration
      * TODO: Implement actual Claude API call
-     */
+     *//*
     private String generateSummary(String billText) {
         // For now, return a placeholder
         return "Summary will be generated here using Claude AI. Bill text length: " + billText.length() + " characters.";
-    }
+    }*/
 }

@@ -5,8 +5,7 @@ import com.example.LegiTrack.model.Bill;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -18,10 +17,10 @@ import java.util.HashMap;
 
 // Service class to handle LegiScan API calls w/ business logic
 @Service
+@Slf4j
 public class LegiScanService {
     private final RestTemplate restTemplate;
     private final LegiScanConfig config;
-    private static final Logger logger = LoggerFactory.getLogger(LegiScanService.class);
     private final HashMap<Long, Bill> billCache = new HashMap<>();
     private final ObjectMapper objectMapper;
 
@@ -35,7 +34,7 @@ public class LegiScanService {
     public JsonNode getMasterList(String state) {
         try {
             String url = UriComponentsBuilder
-                    .fromHttpUrl(config.getBaseUrl())
+                    .fromUriString(config.getBaseUrl())
                     .queryParam("key", config.getApiKey())
                     .queryParam("op", "getMasterList")
                     .queryParam("state", state)
@@ -45,7 +44,7 @@ public class LegiScanService {
             ResponseEntity<JsonNode> response = restTemplate.getForEntity(url, JsonNode.class);
             return response.getBody();
         } catch (RestClientException e) {
-            logger.error("Error fetching master data from LegiScan", e);
+            log.error("Error fetching master data from LegiScan", e);
             throw new RuntimeException("Failed to fetch bill data", e);
         }
     }
@@ -70,7 +69,7 @@ public class LegiScanService {
 
             return billObj;
         } catch (RestClientException e) {
-            logger.error("Error fetching bill data from LegiScan", e);
+            log.error("Error fetching bill data from LegiScan", e);
             throw new RuntimeException("Failed to fetch bill data", e);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Failed to parse bill data", e);
@@ -91,7 +90,7 @@ public class LegiScanService {
             ResponseEntity<JsonNode> response = restTemplate.getForEntity(url, JsonNode.class);
             return response.getBody();
         } catch (RestClientException e) {
-            logger.error("Error searching bills in LegiScan", e);
+            log.error("Error searching bills in LegiScan", e);
             throw new RuntimeException("Failed to search bills", e);
         }
     }
