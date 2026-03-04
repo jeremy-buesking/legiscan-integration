@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 public class AnthropicConfig {
     private String apiKey;
     private String baseUrl = "https://api.anthropic.com/v1/messages";
-    private String model = "claude-3-5-sonnet-20240620";
+    private String model = "claude-sonnet-4-6";
     private Integer maxTokens = 1024;
     private String apiVersion = "2023-06-01";
 }

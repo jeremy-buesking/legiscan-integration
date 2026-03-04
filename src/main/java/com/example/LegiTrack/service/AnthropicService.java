@@ -30,6 +30,8 @@ public class AnthropicService {
         this.restTemplate = restTemplate;
         this.config = config;
         this.objectMapper = objectMapper;
+        log.info("=== AnthropicService initialized ===");
+        log.info("Model: {}", config.getModel());
     }
 
     public String summarizeBill(String billText) {
