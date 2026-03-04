@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import './LegiScanSearch.css';
 import axios from 'axios';
+import BillCard from '../BillCard/BillCard';
 
 function LegiScanSearch() {
     const [query, setQuery] = useState('');
@@ -55,14 +56,7 @@ function LegiScanSearch() {
             <div>
                 {bills && Object.keys(bills).length > 0 ? (
                     Object.values(bills).map((bill) => (
-                        <div className="bill-info-card" key={bill.bill_id}>
-                            <h1 className="bill-title">{bill.title}</h1>
-                            <p className="bill-number">Bill Number: {bill.bill_number}</p>
-                            <p className="state">State: {bill.state}</p>
-                            <p className="last-action">Last Action:<br/> {bill.last_action}<br/> on:<br/> {bill.last_action_date}</p>
-                            <a className="read-more" href={bill.url} target="_blank" rel="noopener noreferrer">Read
-                                More</a>
-                        </div>
+                        <BillCard bill={bill} />
                     ))
                 ) : (
                     <p>No bills found.</p>
