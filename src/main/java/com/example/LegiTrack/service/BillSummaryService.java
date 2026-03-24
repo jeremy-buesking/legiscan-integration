@@ -1,7 +1,7 @@
 package com.example.LegiTrack.service;
 
-import com.example.LegiTrack.model.Bill;
-import com.example.LegiTrack.model.BillSummaryEntity;
+import com.example.LegiTrack.model.domain.Bill;
+import com.example.LegiTrack.model.entity.BillSummaryEntity;
 import com.example.LegiTrack.repository.BillSummaryRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,13 +60,4 @@ public class BillSummaryService {
             throw new RuntimeException("Failed to generate summary for bill " + billId, e);
         }
     }
-
-/*    *//**
-     * Placeholder for Claude API integration
-     * TODO: Implement actual Claude API call
-     *//*
-    private String generateSummary(String billText) {
-        // For now, return a placeholder
-        return "Summary will be generated here using Claude AI. Bill text length: " + billText.length() + " characters.";
-    }*/
 }

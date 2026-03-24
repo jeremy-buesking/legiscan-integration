@@ -1,4 +1,4 @@
-package com.example.LegiTrack.model;
+package com.example.LegiTrack.model.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;

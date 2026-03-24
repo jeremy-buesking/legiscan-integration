@@ -1,6 +1,6 @@
 package com.example.LegiTrack.repository;
 
-import com.example.LegiTrack.model.BillSummaryEntity;
+import com.example.LegiTrack.model.entity.BillSummaryEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

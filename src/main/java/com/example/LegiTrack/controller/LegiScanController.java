@@ -1,6 +1,6 @@
 package com.example.LegiTrack.controller;
 
-import com.example.LegiTrack.model.Bill;
+import com.example.LegiTrack.model.domain.Bill;
 import com.example.LegiTrack.service.BillSummaryService;
 import com.example.LegiTrack.service.BillTextService;
 import com.example.LegiTrack.service.LegiScanService;

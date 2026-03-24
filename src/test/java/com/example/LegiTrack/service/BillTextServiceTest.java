@@ -1,7 +1,7 @@
 package com.example.LegiTrack.service;
 
 import com.example.LegiTrack.config.LegiScanConfig;
-import com.example.LegiTrack.model.Bill;
+import com.example.LegiTrack.model.domain.Bill;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.pdfbox.pdmodel.PDDocument;

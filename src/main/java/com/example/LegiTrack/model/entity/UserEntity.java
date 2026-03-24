@@ -1,8 +1,10 @@
-package com.example.LegiTrack.model;
+package com.example.LegiTrack.model.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -34,7 +36,12 @@ public class UserEntity {
     private String state;
 
     @Column(name = "created_date")
+    @CreationTimestamp
     private LocalDateTime createdDate;
+
+    @Column(name = "updated_date")
+    @UpdateTimestamp
+    private LocalDateTime updatedDate;
 
     public UserEntity(String email, /*String password,*/ String firstName, String lastName, String userName, String state) {
         this.email = email;
@@ -43,6 +50,5 @@ public class UserEntity {
         this.lastName = lastName;
         this.userName = userName;
         this.state = state;
-        this.createdDate = LocalDateTime.now();
     }
 }

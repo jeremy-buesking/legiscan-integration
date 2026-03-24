@@ -1,4 +1,4 @@
-package com.example.LegiTrack.model;
+package com.example.LegiTrack.model.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
