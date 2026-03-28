@@ -61,8 +61,9 @@ public class LegiScanController {
 
     @GetMapping("/search")
     public ResponseEntity<JsonNode> searchBills(
-            @RequestParam String query,
-            @RequestParam String state) {
+        @RequestParam String query,
+        @RequestParam String state) {
+
         JsonNode response = legiScanService.searchBills(query, state);
         return ResponseEntity.ok(response);
     }
